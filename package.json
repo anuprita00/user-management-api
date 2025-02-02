@@ -1,7 +1,6 @@
 {
   "name": "basic-project",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,6 +11,16 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.21.2",
+    "node": "^23.7.0",
     "nodemon": "^3.1.9"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anuprita00/user-management-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/anuprita00/user-management-api/issues"
+  },
+  "homepage": "https://github.com/anuprita00/user-management-api#readme",
+  "description": ""
 }

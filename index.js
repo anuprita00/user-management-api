@@ -7,21 +7,27 @@ app.get("/",(req, res) => {
     res.send("Hello");
 })
 
-let user = [
+let users = [
     {id: 1, name:"Alice"},
     {id:2, name:"Bob"}
 ]
 
 //Get all users
 app.get("/users", (req, res) => {
-    res.json(user);
+    res.json(users);
 })
 
 //get user by id
 app.get("/users/:id", (req, res) => {
-    
+    const user = users.find(u => u.id == req.id)
+    if(!user){
+        return res.status(404).send("User Not Fount");
+    }
+    user.name = req.body.name;
+    res.json(user.name);
+
 })
 
-app.listen(3000, () => {
+app.listen(5000, () => {
     console.log("running");
 });
