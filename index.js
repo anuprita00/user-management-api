@@ -1,33 +1,21 @@
+require("dotenv").config();
 const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
+const userRoutes = require("./routes/userRoutes");
 
 app.use(express.json()); // Middleware to parse JSON
 
-app.get("/",(req, res) => {
-    res.send("Hello");
-})
+//connect to mongodb
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("connected to mongodb"))
+  .catch(err => console.error(err));
 
-let users = [
-    {id: 1, name:"Alice"},
-    {id:2, name:"Bob"}
-]
+app.use("/users", userRoutes);
 
-//Get all users
-app.get("/users", (req, res) => {
-    res.json(users);
-})
 
-//get user by id
-app.get("/users/:id", (req, res) => {
-    const user = users.find(u => u.id == req.id)
-    if(!user){
-        return res.status(404).send("User Not Fount");
-    }
-    user.name = req.body.name;
-    res.json(user.name);
-
-})
-
-app.listen(5000, () => {
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
     console.log("running");
 });
