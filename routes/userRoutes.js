@@ -6,10 +6,11 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const authenticate = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
+const user = require("../models/user");
 // Express Router to define API routes separately.
 const router = express.Router();
 
-//Register User
+//Register User (Any user can register)
 router.post("/register", async (req,res) => {
     const {name, email, password, role} = req.body;
 
@@ -27,7 +28,7 @@ router.post("/register", async (req,res) => {
    // Admins must be created manually or through an admin-only API.
 });
 
-//Login User
+//Login User (Any user can log in)
 router.post("/login", async (req, res) => {
     const {email, password} = req.body;
     const user = await User.findOne({email});
@@ -47,7 +48,7 @@ router.post("/login", async (req, res) => {
 
 
 // Admin-only: Get all users
-router.get("/", authenticate, authorize ,async (req, res) => {
+router.get("/", authenticate, authorize(["admin"]) ,async (req, res) => {
     const users = await User.find();
     //console.log(users);
     res.json({message:"welcome Admin",users});
@@ -56,5 +57,37 @@ router.get("/", authenticate, authorize ,async (req, res) => {
 // Regular users will receive a 403 Forbidden error.
 
 });
+
+// Get One User (User can access own data, Admin can access any)
+router.get("/:id", authenticate, async (req, res) => {
+    if(req.user.role !== "admin" && req.user.userId != req.params.id){
+        return res.status(403).json({message:"Forbidden: You can only access your own data"});
+    }
+
+    const user = await User.findById(req.params.id);
+    if(!user) return res.status(404).json({message:"user not found"});
+
+    res.json(user);
+})
+
+// Update User (User can update own profile, Admin can update any)
+router.put("/:id", authenticate, async (req, res) => {
+    if(req.user.role !== "admin" && req.user.userId !== req.params.id){
+        return res.status(403).json({message:"Forbidden: You can only access your own data"});
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {new: true});
+    if(!updatedUser) return res.status(404).json({message:"User not found"});
+
+    res.json(updatedUser);
+})
+
+// Delete User (Admin only)
+router.delete("/:id", authenticate, authorize(["admin"]), async (req, res) => {
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    if(!deletedUser) return res.status(404).json({message:"User not found"});
+
+    res.json({message: "User deleted successfully"});
+})
 
 module.exports = router;
